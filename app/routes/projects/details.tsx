@@ -1,23 +1,48 @@
 import type { Route } from "./+types/details";
-import type { Project } from "~/types";
+import type { Project, StrapiProject, StrapiResponse } from "~/types";
 import { Link } from "react-router";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
-export async function clientLoader({
-  request,
-  params,
-}: Route.ClientLoaderArgs): Promise<Project> {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/projects/${params.id}`,
+    `${import.meta.env.VITE_API_URL}/projects?filters[documentId][$eq]=${params.id}&populate=*`,
   );
+  // const res = await fetch(
+  //   `${import.meta.env.VITE_API_URL}/projects/${params.id}?populate=*`,
+  // );
+
   if (!res.ok) throw new Response("Project not found", { status: 404 });
-  const project: Project = await res.json();
+  const json: StrapiResponse<StrapiProject> = await res.json();
+  // const json: { data: StrapiProject } = await res.json();
+
+  const project: Project = {
+    id: json.data[0].id,
+    documentId: json.data[0].documentId,
+    title: json.data[0].title,
+    description: json.data[0].description,
+    featured: json.data[0].featured,
+    date: json.data[0].date,
+    category: json.data[0].category,
+    url: json.data[0].url,
+    image: json.data[0].image?.url
+      ? `${import.meta.env.VITE_STRAPI_URL}${json.data[0].image.url}`
+      : "images/no-image.png",
+  };
+  // const project: Project = {
+  //   id: json.data.id,
+  //   documentId: json.data.documentId,
+  //   title: json.data.title,
+  //   description: json.data.description,
+  //   featured: json.data.featured,
+  //   date: json.data.date,
+  //   category: json.data.category,
+  //   url: json.data.url,
+  //   image: json.data.image?.url
+  //     ? `${import.meta.env.VITE_STRAPI_URL}${json.data.image.url}`
+  //     : "images/no-image.png",
+  // };
 
   return project;
-}
-
-export function HydrateFallback() {
-  return <div>Loading...</div>;
 }
 
 function ProjectDetailsPage({ loaderData }: Route.ComponentProps) {
