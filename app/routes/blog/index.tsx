@@ -2,23 +2,34 @@ import { useState } from "react";
 import Pagination from "~/components/Pagination";
 import PostFilter from "~/components/PostFilter";
 import type { Route } from "./+types/index";
-import type { PostMeta } from "~/types";
+import type { PostMeta, StrapiPost, StrapiResponse } from "~/types";
 import PostCard from "~/components/PostCard";
 
 export async function loader({
   request,
 }: Route.LoaderArgs): Promise<{ posts: PostMeta[] }> {
-  const url = new URL("/posts-meta.json", request.url);
-  const res = await fetch(url.href);
-  if (!res.ok) throw new Error("Failed to fetch data");
-  const data = await res.json();
-
-  data.sort(
-    (a: PostMeta, b: PostMeta) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime(),
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/posts?populate=image&sort=date:desc`,
   );
 
-  return { posts: data };
+  if (!res.ok) throw new Error("Failed to fetch data");
+
+  const json: StrapiResponse<StrapiPost> = await res.json();
+
+  const posts = json.data.map((item: StrapiPost) => ({
+    id: item.id,
+    documentId: item.documentId,
+    title: item.title,
+    slug: item.slug,
+    excerpt: item.excerpt,
+    body: item.body,
+    date: item.date,
+    image: item.image?.url
+      ? `${import.meta.env.VITE_STRAPI_URL}${item.image.url}`
+      : "images/no-image.png",
+  }));
+
+  return { posts };
 }
 
 function BlogPage({ loaderData }: Route.ComponentProps) {
@@ -34,7 +45,7 @@ function BlogPage({ loaderData }: Route.ComponentProps) {
   );
 
   // Pagination Calculations
-  const postPerPage = 4;
+  const postPerPage = 3;
   const totalPages = Math.ceil(filteredPosts.length / postPerPage);
   const indexOfFirst = currentPage * postPerPage - postPerPage;
   const indexOfLast = currentPage * postPerPage;
