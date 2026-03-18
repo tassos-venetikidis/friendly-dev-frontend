@@ -1,17 +1,13 @@
-import type { PostMeta } from "~/types";
+import type { Post } from "~/types";
 import { Link } from "react-router";
 
 type LatestBlogPostsProps = {
-  posts: PostMeta[];
+  posts: Post[];
   limit?: number;
 };
 
 function LatestBlogPosts({ posts, limit = 3 }: LatestBlogPostsProps) {
-  const sortedPosts = [...posts].sort(
-    (a: PostMeta, b: PostMeta) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-  const latestPosts = sortedPosts.slice(0, limit);
+  const latestPosts = posts.slice(0, limit);
 
   return (
     <section className="max-w-6xl mx-auto px-6 py-12">
