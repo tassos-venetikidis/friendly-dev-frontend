@@ -28,7 +28,7 @@ export async function loader({
     body: strapiPost.body,
     date: strapiPost.date,
     image: strapiPost.image?.url
-      ? `${import.meta.env.VITE_STRAPI_URL}${strapiPost.image.url}`
+      ? `${strapiPost.image.url}`
       : "images/no-image.png",
   };
 

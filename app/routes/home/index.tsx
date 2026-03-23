@@ -46,9 +46,7 @@ export async function loader({
     date: project.date,
     category: project.category,
     url: project.url,
-    image: project.image?.url
-      ? `${import.meta.env.VITE_STRAPI_URL}${project.image.url}`
-      : "images/no-image.png",
+    image: project.image?.url ? `${project.image.url}` : "images/no-image.png",
   }));
 
   const posts = postJson.data.map((item: StrapiPost) => ({
@@ -59,9 +57,7 @@ export async function loader({
     excerpt: item.excerpt,
     body: item.body,
     date: item.date,
-    image: item.image?.url
-      ? `${import.meta.env.VITE_STRAPI_URL}${item.image.url}`
-      : "images/no-image.png",
+    image: item.image?.url ? `${item.image.url}` : "images/no-image.png",
   }));
 
   return { posts, projects };

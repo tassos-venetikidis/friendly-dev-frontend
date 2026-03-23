@@ -25,7 +25,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     category: json.data[0].category,
     url: json.data[0].url,
     image: json.data[0].image?.url
-      ? `${import.meta.env.VITE_STRAPI_URL}${json.data[0].image.url}`
+      ? `${json.data[0].image.url}`
       : "images/no-image.png",
   };
   // const project: Project = {
